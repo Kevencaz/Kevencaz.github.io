@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="240" viewBox="0 0 900 240">
+  <rect width="900" height="240" fill="#ffffff"/>
+  <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial" fill="#111">
+    <text x="24" y="40" font-size="20">CI/CD Launch</text>
+  </g>
+  <g stroke="#111" stroke-width="2" fill="#f7f2ff">
+    <path d="M220 160 L300 80 L380 160 Z"/>
+    <rect x="270" y="120" width="60" height="70" fill="#f2f6ff"/>
+    <circle cx="300" cy="135" r="10" fill="#fff"/>
+  </g>
+  <g stroke="#111" stroke-width="2" fill="#fff7f2">
+    <path d="M300 190 C290 210 310 220 300 235 C320 220 330 210 300 190 Z"/>
+  </g>
+  <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial" font-size="14" fill="#111">
+    <text x="420" y="120">Build</text>
+    <text x="420" y="150">Test</text>
+    <text x="420" y="180">Deploy</text>
+  </g>
+</svg>

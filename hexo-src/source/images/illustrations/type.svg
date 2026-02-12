@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="240" viewBox="0 0 900 240">
+  <rect width="900" height="240" fill="#ffffff"/>
+  <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial" fill="#111">
+    <text x="24" y="40" font-size="20">Type System</text>
+  </g>
+  <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial" font-weight="600" fill="#111">
+    <text x="200" y="150" font-size="96">T</text>
+    <text x="320" y="150" font-size="72">&lt;/&gt;</text>
+  </g>
+  <g stroke="#111" stroke-width="2" fill="#f2f6ff">
+    <rect x="180" y="80" width="260" height="110" rx="16" fill="#f2f6ff"/>
+  </g>
+</svg>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="240" viewBox="0 0 900 240">
+  <rect width="900" height="240" fill="#ffffff"/>
+  <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial" fill="#111">
+    <text x="24" y="40" font-size="20">Service Resilience</text>
+  </g>
+  <g stroke="#111" stroke-width="2" fill="#f2f6ff">
+    <rect x="180" y="70" width="220" height="40" rx="8"/>
+    <rect x="180" y="120" width="220" height="40" rx="8"/>
+    <rect x="180" y="170" width="220" height="40" rx="8"/>
+  </g>
+  <g fill="#111">
+    <circle cx="210" cy="90" r="4"/>
+    <circle cx="210" cy="140" r="4"/>
+    <circle cx="210" cy="190" r="4"/>
+  </g>
+  <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial" font-size="13" fill="#111">
+    <text x="240" y="95">Timeout</text>
+    <text x="240" y="145">Retry</text>
+    <text x="240" y="195">Fallback</text>
+  </g>
+</svg>

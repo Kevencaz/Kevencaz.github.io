@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="240" viewBox="0 0 900 240">
+  <rect width="900" height="240" fill="#ffffff"/>
+  <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial" fill="#111">
+    <text x="24" y="40" font-size="20">Tracing Radar</text>
+  </g>
+  <g stroke="#111" stroke-width="2" fill="none">
+    <circle cx="260" cy="140" r="70"/>
+    <circle cx="260" cy="140" r="45"/>
+    <circle cx="260" cy="140" r="20"/>
+    <line x1="260" y1="140" x2="330" y2="90"/>
+  </g>
+  <g fill="#f2f6ff" stroke="#111" stroke-width="2">
+    <circle cx="330" cy="90" r="6"/>
+  </g>
+  <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial" font-size="13" fill="#111">
+    <text x="350" y="110">trace</text>
+  </g>
+</svg>
