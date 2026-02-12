@@ -1,0 +1,114 @@
+<!DOCTYPE html><html lang="zh-CN"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Technology Stack"><title>从 0 到 1 搭建 CI/CD：让部署像提交代码一样简单｜策略拆解 | Mystwood</title><link rel="icon" type="image/x-icon" href="/favicon.ico"><link rel="stylesheet" href="/styles/global.css"><link rel="stylesheet" href="/_astro/Gitalk.B4AMVcrv.css">
+<style>#gitalk-container{margin-top:60px;padding:20px;background:#0a0e1799;border:1px solid rgba(0,240,255,.2);border-radius:8px}.gt-container{color:#e0e0e0!important}.gt-container .gt-header-textarea{background:#0a0e17cc!important;border:1px solid rgba(0,240,255,.3)!important;color:#e0e0e0!important}.gt-container .gt-header-textarea:focus{border-color:var(--primary)!important;box-shadow:0 0 10px #00f0ff4d!important}.gt-container .gt-btn{background:linear-gradient(135deg,var(--primary),var(--primary-dark))!important;border:none!important;color:#fff!important;transition:all .3s ease!important}.gt-container .gt-btn:hover{box-shadow:0 0 15px #00f0ff80!important;transform:translateY(-2px)}.gt-container .gt-btn-preview{background:#b44aff33!important;border:1px solid rgba(180,74,255,.5)!important;color:var(--secondary)!important}.gt-container .gt-comment-content{background:#0a0e1799!important;border:1px solid rgba(0,240,255,.1)!important;color:#e0e0e0!important}.gt-container .gt-comment-content:hover{box-shadow:0 0 10px #00f0ff33!important}.gt-container a{color:var(--primary)!important}.gt-container a:hover{color:var(--secondary)!important}.gt-container .gt-comment-username{color:var(--primary)!important;font-weight:600!important}.gt-container .gt-comment-date{color:#888!important}.gt-container .gt-svg svg{fill:var(--primary)!important}.gt-container .gt-comment-admin .gt-comment-content{border-left:3px solid var(--primary)!important}
+</style></head> <body> <div class="reading-progress" id="reading-progress"></div> <script type="module">const n=document.getElementById("reading-progress");n&&window.addEventListener("scroll",()=>{const e=document.documentElement.scrollHeight-window.innerHeight,t=e>0?window.scrollY/e*100:0;n.style.width=`${t}%`});</script> <div class="layout"> <aside class="sidebar"> <div class="sidebar-inner"> <div class="site-author"> <a href="/"> <img class="avatar" src="/images/header.png" alt="Keven" width="96" height="96"> </a> <h2 class="author-name">Keven</h2> <p class="site-subtitle" id="typing-subtitle"></p> </div> <nav class="site-nav"> <a href="/" class="nav-item"> <span class="nav-icon">🏠</span> <span>首页</span> </a><a href="/archives/" class="nav-item"> <span class="nav-icon">📦</span> <span>归档</span> </a><a href="/tags/" class="nav-item"> <span class="nav-icon">🏷️</span> <span>标签</span> </a><a href="/categories/" class="nav-item"> <span class="nav-icon">📂</span> <span>分类</span> </a><a href="/games/" class="nav-item"> <span class="nav-icon">🎮</span> <span>小游戏</span> </a> </nav> <div class="sidebar-footer"> <a href="https://github.com/Kevencaz" target="_blank" rel="noopener" class="github-link">
+GitHub ↗
+</a> </div> </div> </aside> <div class="main-wrapper"> <main class="main-content">  <article class="post-detail"> <header class="post-header"> <h1 class="post-title" style="background:linear-gradient(135deg,var(--primary),var(--primary-dark));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;"> 从 0 到 1 搭建 CI/CD：让部署像提交代码一样简单｜策略拆解 </h1> <div class="post-meta"> <time datetime="2021-10-13T02:21:03.000Z">2021/10/13</time> <span class="post-tags"> <a href="/tags/CI-CD/" class="tag">#CI/CD</a><a href="/tags/工程化/" class="tag">#工程化</a> </span> </div> </header> <div class="post-body"> <blockquote>
+<p>部署应该是流水线，而不是手工仪式。</p>
+</blockquote>
+<!-- more -->
+<h2 id="开篇">开篇</h2>
+<p>这篇文章面向多环境交付团队，从协作视角深入拆解从 0 到 1 搭建 CI/CD。当前定位为「进阶」阶段，核心目标是稳定可复用，开始处理边界。我们会从实际场景出发，结合具体代码示例，把关键知识点拆解为可落地的行动步骤。衡量标准：交付周期/回滚次数。</p>
+<h2 id="问题拆解">问题拆解</h2>
+<p>还记得手动部署的日子吗？SSH 登录服务器，git pull，npm install，pm2 restart——每次都提心吊胆，生怕漏了哪一步。CI/CD 的核心价值不是”自动化”本身，而是”可重复、可追溯、可回滚”。当部署变成一条流水线，你就能把精力从”怎么发布”转移到”发布什么”上。</p>
+<p>手动部署有三个致命问题：不可重复（每次操作可能有细微差异）、不可追溯（谁在什么时候部署了什么版本？）、不可回滚（出了问题只能手动修复）。CI/CD 流水线把这三个问题一次性解决。更重要的是，它降低了发布的心理门槛——当你知道随时可以安全回滚时，你会更愿意频繁发布小改动，而不是攒一大堆改动一次性上线。</p>
+<h2 id="解决方案">解决方案</h2>
+<p>一条基本的 CI/CD 流水线包含以下阶段：</p>
+<ol>
+<li>代码检查：ESLint/Prettier 格式化检查，TypeScript 类型检查。</li>
+<li>自动化测试：单元测试、集成测试，确保改动没有破坏已有功能。</li>
+<li>构建打包：生成生产环境产物，记录构建版本号。</li>
+<li>产物存储：将构建产物上传到制品库（如 Docker Registry、S3），确保产物可复用。</li>
+<li>部署发布：将产物部署到目标环境，支持灰度发布和快速回滚。</li>
+</ol>
+<p>以 GitHub Actions 为例，一个基本的 Node.js 项目流水线只需要一个 YAML 文件。关键是把环境差异抽象为配置变量，而不是硬编码在代码或脚本中。</p>
+<h2 id="代码实战">代码实战</h2>
+<p>在业务增长带来的容量压力的实际场景中，下面的代码模式非常实用：</p>
+<pre class="astro-code one-dark-pro" style="background-color:#282c34;color:#abb2bf; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7F848E;font-style:italic"># .github/workflows/ci.yml</span></span>
+<span class="line"><span style="color:#E06C75">name</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">CI/CD Pipeline</span></span>
+<span class="line"><span style="color:#D19A66">on</span><span style="color:#ABB2BF">:</span></span>
+<span class="line"><span style="color:#E06C75">  push</span><span style="color:#ABB2BF">:</span></span>
+<span class="line"><span style="color:#E06C75">    branches</span><span style="color:#ABB2BF">: [</span><span style="color:#98C379">main</span><span style="color:#ABB2BF">]</span></span>
+<span class="line"><span style="color:#E06C75">  pull_request</span><span style="color:#ABB2BF">:</span></span>
+<span class="line"><span style="color:#E06C75">    branches</span><span style="color:#ABB2BF">: [</span><span style="color:#98C379">main</span><span style="color:#ABB2BF">]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E06C75">jobs</span><span style="color:#ABB2BF">:</span></span>
+<span class="line"><span style="color:#E06C75">  test</span><span style="color:#ABB2BF">:</span></span>
+<span class="line"><span style="color:#E06C75">    runs-on</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">ubuntu-latest</span></span>
+<span class="line"><span style="color:#E06C75">    steps</span><span style="color:#ABB2BF">:</span></span>
+<span class="line"><span style="color:#ABB2BF">      - </span><span style="color:#E06C75">uses</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">actions/checkout@v4</span></span>
+<span class="line"><span style="color:#ABB2BF">      - </span><span style="color:#E06C75">uses</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">actions/setup-node@v4</span></span>
+<span class="line"><span style="color:#E06C75">        with</span><span style="color:#ABB2BF">: { </span><span style="color:#E06C75">node-version</span><span style="color:#ABB2BF">: </span><span style="color:#D19A66">20</span><span style="color:#ABB2BF"> }</span></span>
+<span class="line"><span style="color:#ABB2BF">      - </span><span style="color:#E06C75">run</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">npm ci</span></span>
+<span class="line"><span style="color:#ABB2BF">      - </span><span style="color:#E06C75">run</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">npm run lint</span></span>
+<span class="line"><span style="color:#ABB2BF">      - </span><span style="color:#E06C75">run</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">npm test -- --coverage</span></span>
+<span class="line"><span style="color:#ABB2BF">      - </span><span style="color:#E06C75">run</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">npm run build</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E06C75">  deploy</span><span style="color:#ABB2BF">:</span></span>
+<span class="line"><span style="color:#E06C75">    needs</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">test</span></span>
+<span class="line"><span style="color:#E06C75">    if</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">github.ref == 'refs/heads/main'</span></span>
+<span class="line"><span style="color:#E06C75">    runs-on</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">ubuntu-latest</span></span>
+<span class="line"><span style="color:#E06C75">    steps</span><span style="color:#ABB2BF">:</span></span>
+<span class="line"><span style="color:#ABB2BF">      - </span><span style="color:#E06C75">uses</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">actions/checkout@v4</span></span>
+<span class="line"><span style="color:#ABB2BF">      - </span><span style="color:#E06C75">run</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">npm ci &#x26;&#x26; npm run build</span></span>
+<span class="line"><span style="color:#ABB2BF">      - </span><span style="color:#E06C75">name</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">Deploy to production</span></span>
+<span class="line"><span style="color:#E06C75">        run</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">echo "Deploy version $GITHUB_SHA"</span></span></code></pre>
+<h2 id="工程化落地">工程化落地</h2>
+<p>建议从最小可用流水线开始：代码推送 → 跑测试 → 自动部署到测试环境。等流程稳定后，再逐步加入代码质量门禁（测试覆盖率、代码扫描）、多环境发布（staging → production）、灰度策略等。每次发布都应该生成一个可追溯的版本号，并保留至少最近 5 个版本的回滚能力。</p>
+<p>对于多环境交付团队来说，建议从最小可行方案开始，先跑通核心流程，再逐步完善边界处理和监控告警。不要试图一次性做到完美，稳定可复用，开始处理边界才是当前阶段的重点。</p>
+<h2 id="避坑清单">避坑清单</h2>
+<p>常见错误包括：流水线没有质量门禁，测试不通过也能部署；构建产物没有版本化，无法精确回滚；环境配置硬编码在代码中，导致”在我机器上能跑”的问题；以及流水线执行时间过长（超过 10 分钟），导致开发者不愿意等待而绕过流程。</p>
+<h2 id="总结与展望">总结与展望</h2>
+<p>本文从协作视角梳理了从 0 到 1 搭建 CI/CD在进阶阶段的关键实践。核心指标是交付周期/回滚次数，最大风险是规范缺失造成返工。希望这些经验能帮你少走弯路，在业务增长带来的容量压力中更从容地推进。</p> </div> </article>  <div id="gitalk-container" data-id="2021-10-13-从-0-到-1-搭建-ci-cd-让部署像提交代码一样简单-策略拆解" data-title="从 0 到 1 搭建 CI/CD：让部署像提交代码一样简单｜策略拆解"></div> <script type="module" src="/_astro/Gitalk.astro_astro_type_script_index_0_lang.Cal0MJAU.js"></script>   <footer class="site-footer"> <div class="footer-inner"> <span>© 2019–2026 Keven</span> <span class="heart">❤️</span> <span>Powered by <a href="https://astro.build" target="_blank" rel="noopener">Astro</a></span> </div> <div class="visitor-stats"> <span id="busuanzi_container_site_pv">
+👀 总访问量 <span id="busuanzi_value_site_pv">-</span> 次
+</span> <span id="busuanzi_container_site_uv">
+👤 访客数 <span id="busuanzi_value_site_uv">-</span> 人
+</span> </div> </footer> </main> </div> </div> <button class="back-to-top" id="back-to-top" aria-label="回到顶部" title="回到顶部">↑</button> <script type="module">const o=document.getElementById("back-to-top");o&&(window.addEventListener("scroll",()=>{o.classList.toggle("visible",window.scrollY>300)}),o.addEventListener("click",()=>{window.scrollTo({top:0,behavior:"smooth"})}));</script> <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script> <script>(function(){const typingTexts = ["Welcome to my blog 🚀","记录学习，分享成长 ✨","Code · Think · Create 💡"];
+
+    // 鼠标点击烟花特效
+    document.addEventListener('click', function(e) {
+      const colors = ['#00f0ff','#b44aff','#ff2d95','#39ff14','#ffe600','#00f0ff'];
+      for (let i = 0; i < 12; i++) {
+        const dot = document.createElement('div');
+        dot.style.cssText = `position:fixed;pointer-events:none;width:6px;height:6px;border-radius:50%;z-index:99999;left:${e.clientX}px;top:${e.clientY}px;background:${colors[Math.floor(Math.random()*colors.length)]}`;
+        document.body.appendChild(dot);
+        const angle = (Math.PI * 2 / 12) * i;
+        const velocity = 60 + Math.random() * 60;
+        const dx = Math.cos(angle) * velocity;
+        const dy = Math.sin(angle) * velocity;
+        const x = e.clientX, y = e.clientY;
+        let start = null;
+        function anim(ts) {
+          if (!start) start = ts;
+          const p = (ts - start) / 600;
+          if (p >= 1) { dot.remove(); return; }
+          dot.style.left = (x + dx * p) + 'px';
+          dot.style.top = (y + dy * p + 40 * p * p) + 'px';
+          dot.style.opacity = String(1 - p);
+          dot.style.transform = `scale(${1 - p * 0.5})`;
+          requestAnimationFrame(anim);
+        }
+        requestAnimationFrame(anim);
+      }
+    });
+    // 动态打字副标题
+    const el = document.getElementById('typing-subtitle');
+    if (el) {
+      const texts = typingTexts;
+      let ti = 0, ci = 0, deleting = false;
+      function tick() {
+        const current = texts[ti];
+        if (!deleting) {
+          el.textContent = current.substring(0, ci + 1);
+          ci++;
+          if (ci >= current.length) { deleting = true; setTimeout(tick, 1800); return; }
+          setTimeout(tick, 80);
+        } else {
+          el.textContent = current.substring(0, ci - 1);
+          ci--;
+          if (ci <= 0) { deleting = false; ti = (ti + 1) % texts.length; setTimeout(tick, 400); return; }
+          setTimeout(tick, 40);
+        }
+      }
+      tick();
+    }
+  })();</script> </body> </html>

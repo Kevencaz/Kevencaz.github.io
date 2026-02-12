@@ -1,0 +1,101 @@
+<!DOCTYPE html><html lang="zh-CN"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Technology Stack"><title>TypeScript 实战：类型收窄、泛型与可维护的接口设计｜性能版 | Mystwood</title><link rel="icon" type="image/x-icon" href="/favicon.ico"><link rel="stylesheet" href="/styles/global.css"><link rel="stylesheet" href="/_astro/Gitalk.B4AMVcrv.css">
+<style>#gitalk-container{margin-top:60px;padding:20px;background:#0a0e1799;border:1px solid rgba(0,240,255,.2);border-radius:8px}.gt-container{color:#e0e0e0!important}.gt-container .gt-header-textarea{background:#0a0e17cc!important;border:1px solid rgba(0,240,255,.3)!important;color:#e0e0e0!important}.gt-container .gt-header-textarea:focus{border-color:var(--primary)!important;box-shadow:0 0 10px #00f0ff4d!important}.gt-container .gt-btn{background:linear-gradient(135deg,var(--primary),var(--primary-dark))!important;border:none!important;color:#fff!important;transition:all .3s ease!important}.gt-container .gt-btn:hover{box-shadow:0 0 15px #00f0ff80!important;transform:translateY(-2px)}.gt-container .gt-btn-preview{background:#b44aff33!important;border:1px solid rgba(180,74,255,.5)!important;color:var(--secondary)!important}.gt-container .gt-comment-content{background:#0a0e1799!important;border:1px solid rgba(0,240,255,.1)!important;color:#e0e0e0!important}.gt-container .gt-comment-content:hover{box-shadow:0 0 10px #00f0ff33!important}.gt-container a{color:var(--primary)!important}.gt-container a:hover{color:var(--secondary)!important}.gt-container .gt-comment-username{color:var(--primary)!important;font-weight:600!important}.gt-container .gt-comment-date{color:#888!important}.gt-container .gt-svg svg{fill:var(--primary)!important}.gt-container .gt-comment-admin .gt-comment-content{border-left:3px solid var(--primary)!important}
+</style></head> <body> <div class="reading-progress" id="reading-progress"></div> <script type="module">const n=document.getElementById("reading-progress");n&&window.addEventListener("scroll",()=>{const e=document.documentElement.scrollHeight-window.innerHeight,t=e>0?window.scrollY/e*100:0;n.style.width=`${t}%`});</script> <div class="layout"> <aside class="sidebar"> <div class="sidebar-inner"> <div class="site-author"> <a href="/"> <img class="avatar" src="/images/header.png" alt="Keven" width="96" height="96"> </a> <h2 class="author-name">Keven</h2> <p class="site-subtitle" id="typing-subtitle"></p> </div> <nav class="site-nav"> <a href="/" class="nav-item"> <span class="nav-icon">🏠</span> <span>首页</span> </a><a href="/archives/" class="nav-item"> <span class="nav-icon">📦</span> <span>归档</span> </a><a href="/tags/" class="nav-item"> <span class="nav-icon">🏷️</span> <span>标签</span> </a><a href="/categories/" class="nav-item"> <span class="nav-icon">📂</span> <span>分类</span> </a><a href="/games/" class="nav-item"> <span class="nav-icon">🎮</span> <span>小游戏</span> </a> </nav> <div class="sidebar-footer"> <a href="https://github.com/Kevencaz" target="_blank" rel="noopener" class="github-link">
+GitHub ↗
+</a> </div> </div> </aside> <div class="main-wrapper"> <main class="main-content">  <article class="post-detail"> <header class="post-header"> <h1 class="post-title" style="background:linear-gradient(135deg,var(--primary),var(--primary-dark));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;"> TypeScript 实战：类型收窄、泛型与可维护的接口设计｜性能版 </h1> <div class="post-meta"> <time datetime="2024-06-06T19:02:04.000Z">2024/06/06</time> <span class="post-tags"> <a href="/tags/TypeScript/" class="tag">#TypeScript</a><a href="/tags/前端/" class="tag">#前端</a> </span> </div> </header> <div class="post-body"> <blockquote>
+<p>让类型成为团队协作的”合同”。</p>
+</blockquote>
+<!-- more -->
+<h2 id="为什么要关注这个话题">为什么要关注这个话题</h2>
+<p>这篇文章面向独立开发者，从性能视角深入拆解TypeScript 实战。当前定位为「深挖」阶段，核心目标是规模化演进与成本优化。我们会从实际场景出发，结合具体代码示例，把关键知识点拆解为可落地的行动步骤。衡量标准：P95/P99 延迟。</p>
+<p>JavaScript 的灵活性是双刃剑：一个函数可能返回 string、null、undefined 甚至 Error 对象，调用方如果不做检查就直接使用，运行时就会炸。TypeScript 的类型系统把这些”运行时惊喜”提前到了编译期。更重要的是，类型定义就是最好的 API 文档——它精确描述了函数接受什么、返回什么、可能出什么错，而且永远不会过时（因为代码改了类型不改，编译就报错）。</p>
+<h2 id="背景与问题">背景与问题</h2>
+<p>TypeScript 的价值不在于”给 JavaScript 加了类型”，而在于它能在编译期捕获错误、提供智能提示、并作为活文档描述代码意图。但很多项目引入 TypeScript 后，到处都是 any 和 as，类型系统形同虚设。真正发挥 TypeScript 威力的关键，是学会类型收窄、泛型抽象和接口设计。</p>
+<p>在「从 0 到 1 的新项目」这个阶段，性能问题尤为突出。只优化局部导致瓶颈迁移是最容易踩的坑，我们需要先建立正确的度量体系，再逐步优化。</p>
+<h2 id="方法论与实践路径">方法论与实践路径</h2>
+<p>类型收窄（Type Narrowing）是 TypeScript 最实用的特性之一。通过 typeof、instanceof、in 操作符或自定义类型守卫，你可以在不同的代码分支中获得更精确的类型推断。</p>
+<p>泛型让你写出可复用的类型安全代码。比如一个通用的 API 响应类型 ApiResult<t>，可以在不同接口间复用，同时保持每个接口返回数据的精确类型。</t></p>
+<p>接口设计的原则是：对外暴露最小必要类型，对内使用精确类型。用 Pick、Omit、Partial 等工具类型从已有类型派生新类型，避免重复定义。用 discriminated union（可辨识联合）处理多态场景，比如不同类型的消息、不同状态的订单。</p>
+<h2 id="代码示例">代码示例</h2>
+<p>下面是一个可以直接参考的深挖级别示例：</p>
+<pre class="astro-code one-dark-pro" style="background-color:#282c34;color:#abb2bf; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="ts"><code><span class="line"><span style="color:#7F848E;font-style:italic">// 可辨识联合 + 类型守卫</span></span>
+<span class="line"><span style="color:#C678DD">type</span><span style="color:#E5C07B"> ApiResult</span><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E5C07B">T</span><span style="color:#ABB2BF">> </span><span style="color:#56B6C2">=</span></span>
+<span class="line"><span style="color:#ABB2BF">  | { </span><span style="color:#E06C75">ok</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">true</span><span style="color:#ABB2BF">; </span><span style="color:#E06C75">data</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">T</span><span style="color:#ABB2BF"> }</span></span>
+<span class="line"><span style="color:#ABB2BF">  | { </span><span style="color:#E06C75">ok</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">false</span><span style="color:#ABB2BF">; </span><span style="color:#E06C75">error</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span><span style="color:#ABB2BF">; </span><span style="color:#E06C75">code</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">number</span><span style="color:#ABB2BF"> };</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#C678DD">function</span><span style="color:#61AFEF"> isOk</span><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E5C07B">T</span><span style="color:#ABB2BF">>(</span><span style="color:#E06C75;font-style:italic">r</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">ApiResult</span><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E5C07B">T</span><span style="color:#ABB2BF">>): </span><span style="color:#E06C75;font-style:italic">r</span><span style="color:#C678DD"> is</span><span style="color:#ABB2BF"> { </span><span style="color:#E06C75">ok</span><span style="color:#ABB2BF">: </span><span style="color:#D19A66">true</span><span style="color:#ABB2BF">; </span><span style="color:#E06C75">data</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">T</span><span style="color:#ABB2BF"> } {</span></span>
+<span class="line"><span style="color:#C678DD">  return</span><span style="color:#E5C07B"> r</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">ok</span><span style="color:#ABB2BF">;</span></span>
+<span class="line"><span style="color:#ABB2BF">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#7F848E;font-style:italic">// 使用时自动收窄</span></span>
+<span class="line"><span style="color:#C678DD">async</span><span style="color:#C678DD"> function</span><span style="color:#61AFEF"> fetchUser</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">id</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span><span style="color:#ABB2BF">) {</span></span>
+<span class="line"><span style="color:#C678DD">  const</span><span style="color:#E5C07B"> result</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">ApiResult</span><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E5C07B">User</span><span style="color:#ABB2BF">> </span><span style="color:#56B6C2">=</span><span style="color:#C678DD"> await</span><span style="color:#E5C07B"> api</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">get</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">`/users/</span><span style="color:#C678DD">${</span><span style="color:#E06C75">id</span><span style="color:#C678DD">}</span><span style="color:#98C379">`</span><span style="color:#ABB2BF">);</span></span>
+<span class="line"><span style="color:#C678DD">  if</span><span style="color:#ABB2BF"> (</span><span style="color:#61AFEF">isOk</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">result</span><span style="color:#ABB2BF">)) {</span></span>
+<span class="line"><span style="color:#E5C07B">    console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">result</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">data</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">name</span><span style="color:#ABB2BF">); </span><span style="color:#7F848E;font-style:italic">// ✅ 类型安全</span></span>
+<span class="line"><span style="color:#ABB2BF">  } </span><span style="color:#C678DD">else</span><span style="color:#ABB2BF"> {</span></span>
+<span class="line"><span style="color:#E5C07B">    console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">error</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">result</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">error</span><span style="color:#ABB2BF">, </span><span style="color:#E5C07B">result</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">code</span><span style="color:#ABB2BF">); </span><span style="color:#7F848E;font-style:italic">// ✅ 自动推断</span></span>
+<span class="line"><span style="color:#ABB2BF">  }</span></span>
+<span class="line"><span style="color:#ABB2BF">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#7F848E;font-style:italic">// 工具类型派生</span></span>
+<span class="line"><span style="color:#C678DD">type</span><span style="color:#E5C07B"> UserCreate</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> Omit</span><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E5C07B">User</span><span style="color:#ABB2BF">, </span><span style="color:#98C379">'id'</span><span style="color:#ABB2BF"> | </span><span style="color:#98C379">'createdAt'</span><span style="color:#ABB2BF">>;</span></span>
+<span class="line"><span style="color:#C678DD">type</span><span style="color:#E5C07B"> UserUpdate</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> Partial</span><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E5C07B">Pick</span><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E5C07B">User</span><span style="color:#ABB2BF">, </span><span style="color:#98C379">'name'</span><span style="color:#ABB2BF"> | </span><span style="color:#98C379">'email'</span><span style="color:#ABB2BF">>>;</span></span></code></pre>
+<h2 id="落地建议">落地建议</h2>
+<p>建议在项目中开启 strict 模式，逐步消除 any。为核心业务模型建立类型定义文件（如 types/order.ts），作为团队的”数据合同”。对于第三方库缺少类型定义的情况，先用 @types/xxx 查找社区类型，没有的话写一个最小的 .d.ts 声明文件。</p>
+<h2 id="常见误区与避坑指南">常见误区与避坑指南</h2>
+<p>最常见的错误是滥用 any 和 as 类型断言，这等于关闭了类型检查。其次是类型定义与实际运行时数据不一致（比如后端返回的字段名变了但前端类型没更新），这比没有类型更危险，因为它给了你虚假的安全感。还有一种情况是过度抽象——五层嵌套的泛型类型，没人看得懂，维护成本比收益还高。</p>
+<h2 id="小结">小结</h2>
+<p>TypeScript 实战的深挖阶段，核心是规模化演进与成本优化。从性能角度出发，关注P95/P99 延迟，避免只优化局部导致瓶颈迁移。把上面的实践清单逐项落地，你会发现效果比想象中来得快。</p> </div> </article>  <div id="gitalk-container" data-id="2024-06-06-typescript-实战-类型收窄-泛型与可维护的接口设计-性能版" data-title="TypeScript 实战：类型收窄、泛型与可维护的接口设计｜性能版"></div> <script type="module" src="/_astro/Gitalk.astro_astro_type_script_index_0_lang.Cal0MJAU.js"></script>   <footer class="site-footer"> <div class="footer-inner"> <span>© 2019–2026 Keven</span> <span class="heart">❤️</span> <span>Powered by <a href="https://astro.build" target="_blank" rel="noopener">Astro</a></span> </div> <div class="visitor-stats"> <span id="busuanzi_container_site_pv">
+👀 总访问量 <span id="busuanzi_value_site_pv">-</span> 次
+</span> <span id="busuanzi_container_site_uv">
+👤 访客数 <span id="busuanzi_value_site_uv">-</span> 人
+</span> </div> </footer> </main> </div> </div> <button class="back-to-top" id="back-to-top" aria-label="回到顶部" title="回到顶部">↑</button> <script type="module">const o=document.getElementById("back-to-top");o&&(window.addEventListener("scroll",()=>{o.classList.toggle("visible",window.scrollY>300)}),o.addEventListener("click",()=>{window.scrollTo({top:0,behavior:"smooth"})}));</script> <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script> <script>(function(){const typingTexts = ["Welcome to my blog 🚀","记录学习，分享成长 ✨","Code · Think · Create 💡"];
+
+    // 鼠标点击烟花特效
+    document.addEventListener('click', function(e) {
+      const colors = ['#00f0ff','#b44aff','#ff2d95','#39ff14','#ffe600','#00f0ff'];
+      for (let i = 0; i < 12; i++) {
+        const dot = document.createElement('div');
+        dot.style.cssText = `position:fixed;pointer-events:none;width:6px;height:6px;border-radius:50%;z-index:99999;left:${e.clientX}px;top:${e.clientY}px;background:${colors[Math.floor(Math.random()*colors.length)]}`;
+        document.body.appendChild(dot);
+        const angle = (Math.PI * 2 / 12) * i;
+        const velocity = 60 + Math.random() * 60;
+        const dx = Math.cos(angle) * velocity;
+        const dy = Math.sin(angle) * velocity;
+        const x = e.clientX, y = e.clientY;
+        let start = null;
+        function anim(ts) {
+          if (!start) start = ts;
+          const p = (ts - start) / 600;
+          if (p >= 1) { dot.remove(); return; }
+          dot.style.left = (x + dx * p) + 'px';
+          dot.style.top = (y + dy * p + 40 * p * p) + 'px';
+          dot.style.opacity = String(1 - p);
+          dot.style.transform = `scale(${1 - p * 0.5})`;
+          requestAnimationFrame(anim);
+        }
+        requestAnimationFrame(anim);
+      }
+    });
+    // 动态打字副标题
+    const el = document.getElementById('typing-subtitle');
+    if (el) {
+      const texts = typingTexts;
+      let ti = 0, ci = 0, deleting = false;
+      function tick() {
+        const current = texts[ti];
+        if (!deleting) {
+          el.textContent = current.substring(0, ci + 1);
+          ci++;
+          if (ci >= current.length) { deleting = true; setTimeout(tick, 1800); return; }
+          setTimeout(tick, 80);
+        } else {
+          el.textContent = current.substring(0, ci - 1);
+          ci--;
+          if (ci <= 0) { deleting = false; ti = (ti + 1) % texts.length; setTimeout(tick, 400); return; }
+          setTimeout(tick, 40);
+        }
+      }
+      tick();
+    }
+  })();</script> </body> </html>
