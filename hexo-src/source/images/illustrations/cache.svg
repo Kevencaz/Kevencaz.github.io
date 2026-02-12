@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="260" viewBox="0 0 900 260">
+  <rect width="900" height="260" fill="#ffffff"/>
+  <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial" fill="#111" stroke="#111" stroke-width="2">
+    <text x="24" y="40" font-size="20" stroke="none">Cache Aside Pattern</text>
+
+    <rect x="60" y="90" width="220" height="90" rx="12" fill="#f2f6ff"/>
+    <rect x="340" y="90" width="220" height="90" rx="12" fill="#f2fff7"/>
+    <rect x="620" y="90" width="220" height="90" rx="12" fill="#fff7f2"/>
+
+    <text x="140" y="140" font-size="16" stroke="none">App</text>
+    <text x="420" y="140" font-size="16" stroke="none">Cache</text>
+    <text x="700" y="140" font-size="16" stroke="none">DB</text>
+
+    <line x1="280" y1="120" x2="340" y2="120"/>
+    <polygon points="340,120 328,113 328,127" fill="#111" stroke="none"/>
+    <text x="292" y="110" font-size="12" stroke="none">read</text>
+
+    <line x1="340" y1="150" x2="280" y2="150"/>
+    <polygon points="280,150 292,143 292,157" fill="#111" stroke="none"/>
+    <text x="292" y="175" font-size="12" stroke="none">hit</text>
+
+    <line x1="560" y1="150" x2="620" y2="150"/>
+    <polygon points="620,150 608,143 608,157" fill="#111" stroke="none"/>
+    <text x="575" y="175" font-size="12" stroke="none">miss</text>
+
+    <line x1="620" y1="120" x2="560" y2="120"/>
+    <polygon points="560,120 572,113 572,127" fill="#111" stroke="none"/>
+    <text x="575" y="110" font-size="12" stroke="none">fill</text>
+  </g>
+</svg>

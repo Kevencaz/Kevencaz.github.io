@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="260" viewBox="0 0 900 260">
+  <rect width="900" height="260" fill="#ffffff"/>
+  <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial" fill="#111" stroke="#111" stroke-width="2">
+    <text x="24" y="40" font-size="20" stroke="none">A Simple Git Branch Flow</text>
+
+    <line x1="80" y1="120" x2="820" y2="120"/>
+    <line x1="160" y1="180" x2="620" y2="180"/>
+
+    <circle cx="140" cy="120" r="10" fill="#f2f6ff"/>
+    <circle cx="260" cy="120" r="10" fill="#f2f6ff"/>
+    <circle cx="380" cy="120" r="10" fill="#f2f6ff"/>
+    <circle cx="500" cy="120" r="10" fill="#f2f6ff"/>
+    <circle cx="620" cy="120" r="10" fill="#f2f6ff"/>
+
+    <circle cx="200" cy="180" r="10" fill="#f2fff7"/>
+    <circle cx="320" cy="180" r="10" fill="#f2fff7"/>
+    <circle cx="440" cy="180" r="10" fill="#f2fff7"/>
+    <circle cx="560" cy="180" r="10" fill="#f2fff7"/>
+
+    <path d="M200 180 C 240 150, 300 150, 380 120" fill="none"/>
+    <path d="M560 180 C 600 150, 620 140, 620 120" fill="none"/>
+
+    <text x="90" y="105" font-size="14" stroke="none">main</text>
+    <text x="90" y="205" font-size="14" stroke="none">feature</text>
+  </g>
+</svg>

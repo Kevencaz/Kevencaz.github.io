@@ -1,0 +1,32 @@
+# Hexo Configuration
+
+title: Mystwood
+subtitle: Welcome to my blog, where I record my study content.
+description: Technology Stack
+keywords:
+author: Keven(CaiJiahao)
+language: zh-Hans
+timezone: Asia/Shanghai
+
+url: https://caijiahao.top
+root: /
+permalink: :year/:month/:day/:title/
+permalink_defaults:
+
+source_dir: source
+date_format: YYYY-MM-DD
+
+theme: next
+
+# Extensions
+plugins:
+  - hexo-generator-search
+
+search:
+  path: search.xml
+  field: post
+  content: true
+  format: html
+
+# Deployment (Actions will publish, keep empty)
+deploy:

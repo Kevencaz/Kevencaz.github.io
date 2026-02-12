@@ -1,0 +1,16 @@
+scheme: Gemini
+
+menu:
+  home: / || fa fa-home
+  archives: /archives/ || fa fa-archive
+  tags: /tags/ || fa fa-tags
+  search: javascript:; || fa fa-search
+
+local_search:
+  enable: true
+
+# Basic profile
+avatar:
+  url: /images/header.jpg
+
+# Disable external analytics by default
