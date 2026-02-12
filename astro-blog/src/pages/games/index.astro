@@ -1,0 +1,265 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="小游戏">
+  <h1 class="page-title">🎮 小游戏</h1>
+
+  <div class="game-container">
+    <div class="game-tabs">
+      <button class="game-tab-btn active" data-game="snake">🐍 贪吃蛇</button>
+      <button class="game-tab-btn" data-game="memory">🃏 记忆翻牌</button>
+      <button class="game-tab-btn" data-game="typing">⌨️ 打字挑战</button>
+    </div>
+
+    <div id="game-snake" class="game-panel active">
+      <div class="game-score">得分: <span id="snake-score">0</span></div>
+      <div class="game-canvas-wrap">
+        <canvas id="snake-canvas" width="400" height="400"></canvas>
+      </div>
+      <p class="game-hint">方向键 / WASD 控制方向</p>
+      <button class="game-btn" id="start-snake">开始游戏</button>
+    </div>
+
+    <div id="game-memory" class="game-panel">
+      <div class="game-score">步数: <span id="memory-moves">0</span> | 配对: <span id="memory-pairs">0</span>/8</div>
+      <div id="memory-board"></div>
+      <button class="game-btn" id="start-memory">重新开始</button>
+    </div>
+
+    <div id="game-typing" class="game-panel">
+      <div class="game-score">WPM: <span id="typing-wpm">0</span> | 正确率: <span id="typing-acc">100</span>%</div>
+      <div id="typing-display"></div>
+      <input id="typing-input" type="text" placeholder="在这里开始打字..." autocomplete="off" />
+      <br/>
+      <button class="game-btn" id="start-typing">新一轮</button>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .game-container { text-align: center; padding: 20px 0; }
+  .game-tabs { display: flex; justify-content: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+  .game-tab-btn {
+    padding: 10px 24px; border: 2px solid var(--primary); border-radius: 24px;
+    background: transparent; color: var(--primary); font-size: 15px; cursor: pointer;
+    transition: all 0.3s;
+  }
+  .game-tab-btn:hover { background: rgba(102,126,234,0.1); transform: translateY(-2px); }
+  .game-tab-btn.active {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: #fff; border-color: transparent;
+  }
+  .game-panel { display: none; }
+  .game-panel.active { display: block; }
+  .game-canvas-wrap {
+    display: inline-block; border-radius: 12px; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  }
+  #snake-canvas { background: #1a1a2e; display: block; }
+  .game-score { font-size: 20px; margin: 16px 0; color: var(--primary); font-weight: bold; }
+  .game-hint { color: var(--text-light); font-size: 14px; margin-top: 8px; }
+  .game-btn {
+    display: inline-block; margin: 8px; padding: 10px 28px; border: none; border-radius: 24px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: #fff; font-size: 15px; cursor: pointer; transition: all 0.3s;
+  }
+  .game-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102,126,234,0.4); }
+  #memory-board {
+    display: grid; grid-template-columns: repeat(4, 80px); gap: 10px;
+    justify-content: center;
+  }
+  #typing-display {
+    font-size: 20px; font-family: monospace; background: #1a1a2e; color: #eee;
+    padding: 24px; border-radius: 12px; min-height: 60px; margin: 16px auto;
+    max-width: 600px; line-height: 1.8; text-align: left;
+  }
+  #typing-input {
+    width: 80%; max-width: 560px; padding: 12px 16px; font-size: 16px;
+    border: 2px solid var(--primary); border-radius: 8px; outline: none; margin: 8px 0;
+  }
+</style>
+
+<script>
+// ========== Tab 切换 ==========
+document.querySelectorAll('.game-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.game-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.game-tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const game = btn.getAttribute('data-game');
+    document.getElementById('game-' + game)?.classList.add('active');
+  });
+});
+
+// ========== 贪吃蛇 ==========
+let snakeTimer: number, snakeDir: {x:number,y:number}, snakeBody: {x:number,y:number}[];
+let snakeFood: {x:number,y:number}, snakeScore: number, snakeRunning: boolean;
+
+function startSnake() {
+  const c = document.getElementById('snake-canvas') as HTMLCanvasElement;
+  const ctx = c.getContext('2d')!;
+  const gs = 20, cols = c.width / gs, rows = c.height / gs;
+  snakeBody = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+  snakeDir = {x:1,y:0}; snakeScore = 0; snakeRunning = true;
+  document.getElementById('snake-score')!.textContent = '0';
+  function placeFood() { snakeFood = {x:Math.floor(Math.random()*cols), y:Math.floor(Math.random()*rows)}; }
+  placeFood();
+  if (snakeTimer) clearInterval(snakeTimer);
+  snakeTimer = window.setInterval(() => {
+    if (!snakeRunning) return;
+    const head = {x: snakeBody[0].x + snakeDir.x, y: snakeBody[0].y + snakeDir.y};
+    if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows) { clearInterval(snakeTimer); snakeRunning = false; return; }
+    for (let i = 0; i < snakeBody.length; i++) { if (snakeBody[i].x === head.x && snakeBody[i].y === head.y) { clearInterval(snakeTimer); snakeRunning = false; return; } }
+    snakeBody.unshift(head);
+    if (head.x === snakeFood.x && head.y === snakeFood.y) { snakeScore += 10; document.getElementById('snake-score')!.textContent = String(snakeScore); placeFood(); }
+    else { snakeBody.pop(); }
+    ctx.fillStyle = '#1a1a2e'; ctx.fillRect(0, 0, c.width, c.height);
+    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+    for (let gx = 0; gx < cols; gx++) { for (let gy = 0; gy < rows; gy++) { ctx.strokeRect(gx*gs, gy*gs, gs, gs); } }
+    ctx.fillStyle = '#f5576c'; ctx.beginPath(); ctx.arc(snakeFood.x*gs+gs/2, snakeFood.y*gs+gs/2, gs/2-2, 0, Math.PI*2); ctx.fill();
+    for (let j = 0; j < snakeBody.length; j++) {
+      const ratio = j / snakeBody.length;
+      ctx.fillStyle = `hsl(${260 - ratio*60},70%,${65 - ratio*15}%)`;
+      ctx.fillRect(snakeBody[j].x*gs+1, snakeBody[j].y*gs+1, gs-2, gs-2);
+    }
+  }, 120);
+}
+
+document.addEventListener('keydown', (e) => {
+  const map: Record<string, {x:number,y:number}> = {
+    ArrowUp:{x:0,y:-1},ArrowDown:{x:0,y:1},ArrowLeft:{x:-1,y:0},ArrowRight:{x:1,y:0},
+    w:{x:0,y:-1},s:{x:0,y:1},a:{x:-1,y:0},d:{x:1,y:0},
+    W:{x:0,y:-1},S:{x:0,y:1},A:{x:-1,y:0},D:{x:1,y:0}
+  };
+  if (map[e.key] && snakeRunning) {
+    const nd = map[e.key];
+    if (nd.x !== -snakeDir.x || nd.y !== -snakeDir.y) snakeDir = nd;
+  }
+});
+
+document.getElementById('start-snake')?.addEventListener('click', startSnake);
+
+// ========== 记忆翻牌 ==========
+let memoryCards: string[], memoryFlipped: number[], memoryMatched: number[], memoryMoves: number, memoryLock: boolean;
+
+function startMemory() {
+  const emojis = ['🚀','💻','🎯','⚡','🔥','🎨','🧩','🌈'];
+  const deck = [...emojis, ...emojis];
+  for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+  memoryCards = deck; memoryFlipped = []; memoryMatched = []; memoryMoves = 0; memoryLock = false;
+  document.getElementById('memory-moves')!.textContent = '0';
+  document.getElementById('memory-pairs')!.textContent = '0';
+  const board = document.getElementById('memory-board')!;
+  board.innerHTML = '';
+  deck.forEach((_, idx) => {
+    const card = document.createElement('div');
+    card.style.cssText = 'width:80px;height:80px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:32px;cursor:pointer;transition:all 0.3s;user-select:none;';
+    card.textContent = '?';
+    card.dataset.idx = String(idx);
+    card.addEventListener('click', () => flipCard(card));
+    board.appendChild(card);
+  });
+}
+
+function flipCard(el: HTMLElement) {
+  if (memoryLock) return;
+  const idx = parseInt(el.dataset.idx!);
+  if (memoryMatched.includes(idx) || memoryFlipped.includes(idx)) return;
+  el.textContent = memoryCards[idx];
+  el.style.background = '#fff';
+  el.style.transform = 'rotateY(180deg)';
+  memoryFlipped.push(idx);
+  if (memoryFlipped.length === 2) {
+    memoryMoves++; document.getElementById('memory-moves')!.textContent = String(memoryMoves);
+    memoryLock = true;
+    const [a, b] = memoryFlipped;
+    if (memoryCards[a] === memoryCards[b]) {
+      memoryMatched.push(a, b); memoryFlipped = [];
+      document.getElementById('memory-pairs')!.textContent = String(memoryMatched.length / 2);
+      memoryLock = false;
+    } else {
+      setTimeout(() => {
+        const cards = document.getElementById('memory-board')!.children;
+        (cards[a] as HTMLElement).textContent = '?'; (cards[a] as HTMLElement).style.background = 'linear-gradient(135deg,#667eea,#764ba2)'; (cards[a] as HTMLElement).style.transform = '';
+        (cards[b] as HTMLElement).textContent = '?'; (cards[b] as HTMLElement).style.background = 'linear-gradient(135deg,#667eea,#764ba2)'; (cards[b] as HTMLElement).style.transform = '';
+        memoryFlipped = []; memoryLock = false;
+      }, 800);
+    }
+  }
+}
+
+document.getElementById('start-memory')?.addEventListener('click', startMemory);
+
+// ========== 打字挑战 ==========
+const typingSentences = [
+  'const app = express();',
+  'git commit -m "fix: resolve race condition"',
+  'SELECT id, name FROM users WHERE active = 1;',
+  'docker build -t myapp:latest .',
+  'npm install --save-dev typescript',
+  'function debounce(fn, delay) { return fn; }',
+  'kubectl get pods --namespace production',
+  'redis-cli SET session:token abc123 EX 3600',
+  'CREATE INDEX idx_user_email ON users(email);',
+  'export default defineConfig({ plugins: [vue()] });'
+];
+let typingStart: number | null, typingTarget: string, typingDone: boolean;
+
+function escHtml(c: string) { return c === '<' ? '&lt;' : c === '>' ? '&gt;' : c === '&' ? '&amp;' : c === ' ' ? '&nbsp;' : c; }
+
+function renderTyping(input: string) {
+  let html = '';
+  for (let i = 0; i < typingTarget.length; i++) {
+    if (i < input.length) {
+      html += input[i] === typingTarget[i]
+        ? `<span style="color:#37c6c0">${escHtml(typingTarget[i])}</span>`
+        : `<span style="color:#f5576c;text-decoration:underline">${escHtml(typingTarget[i])}</span>`;
+    } else if (i === input.length) {
+      html += `<span style="border-left:2px solid #667eea;animation:blink 1s infinite">${escHtml(typingTarget[i])}</span>`;
+    } else {
+      html += `<span style="color:#666">${escHtml(typingTarget[i])}</span>`;
+    }
+  }
+  document.getElementById('typing-display')!.innerHTML = html;
+}
+
+function startTyping() {
+  typingTarget = typingSentences[Math.floor(Math.random() * typingSentences.length)];
+  typingDone = false; typingStart = null;
+  document.getElementById('typing-wpm')!.textContent = '0';
+  document.getElementById('typing-acc')!.textContent = '100';
+  renderTyping('');
+  const inp = document.getElementById('typing-input') as HTMLInputElement;
+  inp.value = ''; inp.focus();
+}
+
+const typingInput = document.getElementById('typing-input') as HTMLInputElement;
+typingInput?.addEventListener('input', () => {
+  if (!typingTarget || typingDone) return;
+  if (!typingStart) typingStart = Date.now();
+  const val = typingInput.value;
+  renderTyping(val);
+  let correct = 0;
+  for (let i = 0; i < val.length; i++) { if (val[i] === typingTarget[i]) correct++; }
+  const acc = val.length ? Math.round(correct / val.length * 100) : 100;
+  document.getElementById('typing-acc')!.textContent = String(acc);
+  const elapsed = (Date.now() - typingStart!) / 60000;
+  const words = val.trim().split(/\s+/).length;
+  if (elapsed > 0) document.getElementById('typing-wpm')!.textContent = String(Math.round(words / elapsed));
+  if (val.length >= typingTarget.length) typingDone = true;
+});
+
+document.getElementById('start-typing')?.addEventListener('click', startTyping);
+
+// ========== 初始化 ==========
+const c = document.getElementById('snake-canvas') as HTMLCanvasElement;
+if (c) {
+  const ctx = c.getContext('2d')!;
+  ctx.fillStyle = '#1a1a2e'; ctx.fillRect(0, 0, 400, 400);
+  ctx.fillStyle = '#667eea'; ctx.font = '20px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('点击「开始游戏」🎮', 200, 200);
+}
+startMemory();
+startTyping();
+</script>

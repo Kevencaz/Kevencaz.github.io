@@ -1,4 +1,4 @@
-name: Deploy Hexo to GitHub Pages
+name: Deploy Astro to GitHub Pages
 
 on:
   push:
@@ -25,23 +25,20 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: hexo-src/package.json
+          cache-dependency-path: astro-blog/package-lock.json
 
       - name: Install
-        working-directory: hexo-src
+        working-directory: astro-blog
         run: npm install
 
       - name: Build
-        working-directory: hexo-src
-        run: npx hexo generate
-
-      - name: Disable Jekyll
-        run: touch hexo-src/public/.nojekyll
+        working-directory: astro-blog
+        run: npm run build
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: hexo-src/public
+          publish_dir: astro-blog/dist
           force_orphan: true

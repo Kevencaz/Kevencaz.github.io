@@ -1,0 +1,32 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PostCard from '@/components/PostCard.astro';
+import { getCollection } from 'astro:content';
+import { sortPosts, getAllTags, slugify } from '@/utils';
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('blog');
+  const tags = getAllTags(allPosts);
+  return Array.from(tags.keys()).map((tag) => ({
+    params: { tag: slugify(tag) },
+    props: {
+      tag,
+      posts: sortPosts(allPosts.filter((p) => p.data.tags.includes(tag))),
+    },
+  }));
+}
+
+const { tag, posts } = Astro.props;
+---
+
+<BaseLayout title={`标签: ${tag}`}>
+  <h1 class="page-title">🏷️ {tag} <span style="font-size:0.9rem;color:var(--text-light)">({posts.length})</span></h1>
+  {posts.map((post) => (
+    <PostCard
+      title={post.data.title}
+      date={post.data.date}
+      tags={post.data.tags}
+      slug={post.id}
+    />
+  ))}
+</BaseLayout>

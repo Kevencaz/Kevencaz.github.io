@@ -1,0 +1,20 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { getAllTags, slugify } from '@/utils';
+
+const allPosts = await getCollection('blog');
+const tags = getAllTags(allPosts);
+const sortedTags = Array.from(tags.entries()).sort((a, b) => b[1] - a[1]);
+---
+
+<BaseLayout title="分类">
+  <h1 class="page-title">📂 分类</h1>
+  <div class="tag-cloud">
+    {sortedTags.map(([tag, count]) => (
+      <a href={`/tags/${slugify(tag)}/`} class="tag" style={`font-size:${Math.min(1.4, 0.85 + count * 0.05)}rem`}>
+        {tag} ({count})
+      </a>
+    ))}
+  </div>
+</BaseLayout>

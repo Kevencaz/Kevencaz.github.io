@@ -1,0 +1,20 @@
+---
+import { SITE } from '@/config';
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>© {SITE.since}–{currentYear} {SITE.author}</span>
+    <span class="heart">❤️</span>
+    <span>Powered by <a href="https://astro.build" target="_blank" rel="noopener">Astro</a></span>
+  </div>
+  <div class="visitor-stats">
+    <span id="busuanzi_container_site_pv">
+      👀 总访问量 <span id="busuanzi_value_site_pv">-</span> 次
+    </span>
+    <span id="busuanzi_container_site_uv">
+      👤 访客数 <span id="busuanzi_value_site_uv">-</span> 人
+    </span>
+  </div>
+</footer>

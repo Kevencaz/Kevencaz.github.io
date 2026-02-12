@@ -1,0 +1,12 @@
+<div class="reading-progress" id="reading-progress"></div>
+
+<script>
+  const bar = document.getElementById('reading-progress');
+  if (bar) {
+    window.addEventListener('scroll', () => {
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      const pct = h > 0 ? (window.scrollY / h) * 100 : 0;
+      bar.style.width = `${pct}%`;
+    });
+  }
+</script>

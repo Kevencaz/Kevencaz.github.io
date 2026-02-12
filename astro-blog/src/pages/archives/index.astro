@@ -1,0 +1,28 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { getArchivesByYear, formatDate } from '@/utils';
+
+const allPosts = await getCollection('blog');
+const archives = getArchivesByYear(allPosts);
+const years = Array.from(archives.keys()).sort((a, b) => b - a);
+---
+
+<BaseLayout title="归档">
+  <h1 class="page-title">📦 归档</h1>
+  <p style="color:var(--text-light);margin-bottom:24px;">共 {allPosts.length} 篇文章</p>
+
+  {years.map((year) => (
+    <div>
+      <h2 class="archive-year">{year}</h2>
+      <ul class="archive-list">
+        {archives.get(year)!.map((post) => (
+          <li class="archive-item">
+            <time>{formatDate(post.data.date)}</time>
+            <a href={`/posts/${post.id}/`}>{post.data.title}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  ))}
+</BaseLayout>

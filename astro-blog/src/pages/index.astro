@@ -1,0 +1,56 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PostCard from '@/components/PostCard.astro';
+import { getCollection } from 'astro:content';
+import { sortPosts } from '@/utils';
+
+const allPosts = await getCollection('blog');
+const posts = sortPosts(allPosts);
+
+const PAGE_SIZE = 10;
+const totalPages = Math.ceil(posts.length / PAGE_SIZE);
+const currentPosts = posts.slice(0, PAGE_SIZE);
+---
+
+<BaseLayout>
+  <div class="search-box">
+    <input type="text" class="search-input" id="search-input" placeholder="🔍 搜索文章..." />
+  </div>
+
+  <div id="post-list">
+    {currentPosts.map((post) => (
+      <PostCard
+        title={post.data.title}
+        date={post.data.date}
+        tags={post.data.tags}
+        slug={post.id}
+      />
+    ))}
+  </div>
+
+  {totalPages > 1 && (
+    <div class="pagination">
+      <span class="current">1</span>
+      {Array.from({ length: Math.min(totalPages - 1, 4) }, (_, i) => (
+        <a href={`/page/${i + 2}/`}>{i + 2}</a>
+      ))}
+      {totalPages > 5 && <span>...</span>}
+    </div>
+  )}
+
+  <script>
+    const input = document.getElementById('search-input') as HTMLInputElement;
+    const postList = document.getElementById('post-list');
+    if (input && postList) {
+      const cards = Array.from(postList.querySelectorAll('.post-card'));
+      input.addEventListener('input', () => {
+        const q = input.value.toLowerCase();
+        cards.forEach((card) => {
+          const title = card.querySelector('.post-title')?.textContent?.toLowerCase() || '';
+          const tags = card.querySelector('.post-tags')?.textContent?.toLowerCase() || '';
+          (card as HTMLElement).style.display = (title.includes(q) || tags.includes(q)) ? '' : 'none';
+        });
+      });
+    }
+  </script>
+</BaseLayout>

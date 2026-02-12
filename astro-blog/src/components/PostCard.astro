@@ -1,0 +1,30 @@
+---
+import { formatDate, slugify } from '@/utils';
+
+interface Props {
+  title: string;
+  date: Date;
+  tags: string[];
+  slug: string;
+  excerpt?: string;
+}
+
+const { title, date, tags, slug, excerpt } = Astro.props;
+---
+
+<article class="post-card">
+  <h2 class="post-title">
+    <a href={`/posts/${slug}/`}>{title}</a>
+  </h2>
+  <div class="post-meta">
+    <time datetime={date.toISOString()}>{formatDate(date)}</time>
+    {tags.length > 0 && (
+      <span class="post-tags">
+        {tags.map((tag) => (
+          <a href={`/tags/${slugify(tag)}/`} class="tag">#{tag}</a>
+        ))}
+      </span>
+    )}
+  </div>
+  {excerpt && <p class="post-excerpt">{excerpt}</p>}
+</article>

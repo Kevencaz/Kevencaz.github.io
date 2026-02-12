@@ -1,0 +1,43 @@
+---
+import { SITE, NAV_ITEMS } from '@/config';
+
+const icons: Record<string, string> = {
+  home: '🏠',
+  archive: '📦',
+  tags: '🏷️',
+  folder: '📂',
+  gamepad: '🎮',
+};
+
+const currentPath = Astro.url.pathname;
+---
+
+<aside class="sidebar">
+  <div class="sidebar-inner">
+    <div class="site-author">
+      <a href="/">
+        <img class="avatar" src={SITE.avatar} alt={SITE.author} width="96" height="96" />
+      </a>
+      <h2 class="author-name">{SITE.author}</h2>
+      <p class="site-subtitle" id="typing-subtitle"></p>
+    </div>
+
+    <nav class="site-nav">
+      {NAV_ITEMS.map((item) => (
+        <a
+          href={item.href}
+          class:list={['nav-item', { active: currentPath === item.href || (item.href !== '/' && currentPath.startsWith(item.href)) }]}
+        >
+          <span class="nav-icon">{icons[item.icon]}</span>
+          <span>{item.label}</span>
+        </a>
+      ))}
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href={`https://github.com/${SITE.github}`} target="_blank" rel="noopener" class="github-link">
+        GitHub ↗
+      </a>
+    </div>
+  </div>
+</aside>
