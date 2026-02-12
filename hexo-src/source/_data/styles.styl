@@ -3,29 +3,20 @@
   min-height: 1.6em
   line-height: 1.6em
 
-// ========== 导航菜单固定悬浮 ==========
-.site-nav
-  position: sticky
-  top: 0
-  z-index: 1500
-  background: rgba(255, 255, 255, 0.95)
-  backdrop-filter: blur(10px)
-  -webkit-backdrop-filter: blur(10px)
-  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06)
-  transition: box-shadow 0.3s ease
-
-// ========== 侧边栏始终可见 ==========
+// ========== 侧边栏（含导航菜单）固定不滚走 ==========
 .sidebar
   visibility: visible !important
   opacity: 1 !important
 
 .sidebar-inner
   position: sticky !important
-  top: 60px
+  top: 12px
+  max-height: calc(100vh - 24px)
+  overflow-y: auto
 
 // 侧边栏 TOC 优化
 .post-toc
-  max-height: calc(100vh - 120px)
+  max-height: calc(100vh - 300px)
   overflow-y: auto
 
 // ========== 文章卡片悬浮效果 ==========
