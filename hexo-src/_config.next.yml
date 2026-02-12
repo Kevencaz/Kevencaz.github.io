@@ -8,11 +8,22 @@ menu:
   categories: /categories/ || fa fa-th
   小游戏: /games/ || fa fa-gamepad
 
+menu_settings:
+  icons: true
+  badges: true
+
 # ========== 搜索 ==========
 local_search:
   enable: true
   trigger: auto
   top_n_per_article: 3
+
+# ========== 侧边栏 ==========
+sidebar:
+  position: left
+  display: always
+  padding: 18
+  offset: 12
 
 # ========== 头像 ==========
 avatar:
@@ -20,18 +31,17 @@ avatar:
   rounded: true
   rotated: true
 
+# ========== TOC 目录 ==========
+toc:
+  enable: true
+  number: true
+  wrap: true
+  expand_all: true
+  max_depth: 4
+
 # ========== 动画效果 ==========
-# 暂时禁用 motion 动画，避免元素消失问题
 motion:
   enable: false
-  async: false
-  transition:
-    menu_item: fadeInDown
-    post_block: fadeIn
-    post_header: fadeInDown
-    post_body: fadeIn
-    coll_header: fadeInLeft
-    sidebar: fadeInUp
 
 # ========== 页脚 ==========
 footer:
@@ -70,8 +80,34 @@ bookmark:
 github_banner:
   enable: false
 
+# ========== 评论系统 (Gitalk) ==========
+comments:
+  style: tabs
+  active: gitalk
+  storage: true
+  lazyload: false
+
+gitalk:
+  enable: true
+  github_id: Kevencaz
+  repo: Kevencaz.github.io
+  client_id: PLACEHOLDER_CLIENT_ID
+  client_secret: PLACEHOLDER_CLIENT_SECRET
+  admin_user: Kevencaz
+  distraction_free_mode: true
+  language: zh-CN
+
+# ========== 访问量统计 (不蒜子) ==========
+busuanzi_count:
+  enable: true
+  total_visitors: true
+  total_visitors_icon: fa fa-user
+  total_views: true
+  total_views_icon: fa fa-eye
+  post_views: true
+  post_views_icon: far fa-eye
+
 # ========== CDN 配置 ==========
-# 禁用 CDN，使用本地资源避免跟踪保护问题
 vendors:
   internal: local
   plugins: local

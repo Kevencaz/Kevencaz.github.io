@@ -1,6 +1,38 @@
-// ========== 全局动画增强 ==========
+// ========== 导航栏固定悬浮 ==========
+.header-inner
+  position: fixed !important
+  top: 0
+  left: 0
+  right: 0
+  z-index: 1500
+  background: rgba(255, 255, 255, 0.95)
+  backdrop-filter: blur(10px)
+  -webkit-backdrop-filter: blur(10px)
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08)
 
-// 文章卡片悬浮效果
+// 给 body 留出导航栏高度
+.main-inner
+  padding-top: 80px
+
+// Gemini scheme 下内容区域偏移修正
+.content-wrap
+  padding-top: 10px
+
+// ========== 侧边栏始终可见 ==========
+.sidebar
+  visibility: visible !important
+  opacity: 1 !important
+
+.sidebar-inner
+  position: sticky !important
+  top: 90px
+
+// 侧边栏 TOC 优化
+.post-toc
+  max-height: calc(100vh - 160px)
+  overflow-y: auto
+
+// ========== 文章卡片悬浮效果 ==========
 .post-block
   transition: all 0.35s ease
   border-radius: 12px
@@ -8,7 +40,7 @@
     transform: translateY(-6px)
     box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12)
 
-// 标题渐变色
+// ========== 标题渐变色 ==========
 .post-title a,
 .post-title-link
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
@@ -21,7 +53,7 @@
     -webkit-background-clip: text
     background-clip: text
 
-// 侧边栏头像呼吸光环
+// ========== 侧边栏头像呼吸光环 ==========
 .site-author-image
   border: 3px solid transparent
   background-clip: padding-box
@@ -46,7 +78,7 @@
     opacity: 1
     transform: scale(1.05)
 
-// 标签云彩虹色
+// ========== 标签云彩虹色 ==========
 .tag-cloud a
   transition: all 0.3s ease
   border-radius: 4px
@@ -56,7 +88,7 @@
     color: #fff !important
     transform: scale(1.15)
 
-// 代码块增强
+// ========== 代码块增强 ==========
 figure.highlight
   border-radius: 10px
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08)
@@ -64,7 +96,7 @@ figure.highlight
   &:hover
     box-shadow: 0 8px 28px rgba(0, 0, 0, 0.15)
 
-// 链接下划线动画
+// ========== 链接下划线动画 ==========
 .post-body a:not(.fancybox)
   position: relative
   color: #667eea
@@ -81,11 +113,11 @@ figure.highlight
   &:hover::after
     width: 100%
 
-// 阅读进度条渐变
+// ========== 阅读进度条渐变 ==========
 .reading-progress-bar
   background: linear-gradient(90deg, #667eea, #764ba2, #f093fb) !important
 
-// 菜单项悬浮效果
+// ========== 菜单项悬浮效果 ==========
 .menu-item a
   transition: all 0.3s ease
   border-radius: 6px
@@ -93,7 +125,7 @@ figure.highlight
     background: rgba(102, 126, 234, 0.1)
     transform: translateY(-2px)
 
-// 页脚心跳动画
+// ========== 页脚心跳动画 ==========
 .with-love
   animation: heartbeat 1.2s ease-in-out infinite
 
@@ -109,23 +141,36 @@ figure.highlight
   70%
     transform: scale(1)
 
-// 移除可能导致元素消失的动画
-// .post-block
-//   opacity: 0
-//   animation: fadeInUp 0.6s ease forwards
+// ========== 访问量统计样式 ==========
+.busuanzi-count
+  font-size: 14px
+  color: #999
 
-@keyframes fadeInUp
-  from
-    opacity: 0
-    transform: translateY(30px)
-  to
-    opacity: 1
-    transform: translateY(0)
-  to
-    opacity: 1
-    transform: translateY(0)
+#busuanzi_container_site_pv,
+#busuanzi_container_site_uv
+  display: inline-block
+  margin: 0 8px
 
-// 游戏页面样式
+// ========== 评论区样式优化 ==========
+.comments
+  margin-top: 40px
+
+.gt-container
+  .gt-header-textarea
+    border-radius: 8px
+    border: 2px solid #e8e8e8
+    transition: border-color 0.3s ease
+    &:focus
+      border-color: #667eea
+
+  .gt-btn
+    background: linear-gradient(135deg, #667eea, #764ba2)
+    border: none
+    border-radius: 6px
+    &:hover
+      opacity: 0.9
+
+// ========== 游戏页面样式 ==========
 .game-container
   text-align: center
   padding: 20px
