@@ -69,6 +69,12 @@ bookmark:
 github_banner:
   enable: false
 
+# ========== CDN 配置 ==========
+# 禁用 CDN，使用本地资源避免跟踪保护问题
+vendors:
+  internal: local
+  plugins: local
+
 # ========== 自定义文件注入 ==========
 custom_file_path:
   style: source/_data/styles.styl
