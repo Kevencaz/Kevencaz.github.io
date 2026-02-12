@@ -91,8 +91,8 @@ gitalk:
   enable: true
   github_id: Kevencaz
   repo: Kevencaz.github.io
-  client_id: PLACEHOLDER_CLIENT_ID
-  client_secret: PLACEHOLDER_CLIENT_SECRET
+  client_id: Ov23limpZdnrSZ6vj8Mq
+  client_secret: f723dbd49fbf0cbb81446ceee90ad6a263d2566a
   admin_user: Kevencaz
   distraction_free_mode: true
   language: zh-CN

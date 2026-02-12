@@ -1,38 +1,18 @@
-// ========== 副标题固定高度，防止跳动 ==========
+// ========== 副标题固定高度（防止打字机效果导致跳动）==========
 .site-subtitle
-  min-height: 24px
-  display: inline-block
+  min-height: 1.6em
+  line-height: 1.6em
 
-// ========== 顶部 Header 固定 ==========
-.header
-  position: fixed !important
-  top: 0
-  left: 0
-  right: 0
-  z-index: 1500
-  background: rgba(255, 255, 255, 0.98)
-  backdrop-filter: blur(10px)
-  -webkit-backdrop-filter: blur(10px)
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08)
-
-// ========== 菜单栏固定悬浮（滚动时可见）==========
+// ========== 导航菜单固定悬浮 ==========
 .site-nav
-  position: sticky !important
+  position: sticky
   top: 0
-  z-index: 1400
-  background: rgba(255, 255, 255, 0.98)
+  z-index: 1500
+  background: rgba(255, 255, 255, 0.95)
   backdrop-filter: blur(10px)
   -webkit-backdrop-filter: blur(10px)
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06)
-  transition: all 0.3s ease
-
-// 给 body 留出导航栏高度
-.main
-  padding-top: 100px
-
-// Gemini scheme 下内容区域偏移修正
-.content-wrap
-  padding-top: 10px
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06)
+  transition: box-shadow 0.3s ease
 
 // ========== 侧边栏始终可见 ==========
 .sidebar
@@ -41,11 +21,11 @@
 
 .sidebar-inner
   position: sticky !important
-  top: 90px
+  top: 60px
 
 // 侧边栏 TOC 优化
 .post-toc
-  max-height: calc(100vh - 160px)
+  max-height: calc(100vh - 120px)
   overflow-y: auto
 
 // ========== 文章卡片悬浮效果 ==========
