@@ -21,8 +21,9 @@ avatar:
   rotated: true
 
 # ========== 动画效果 ==========
+# 暂时禁用 motion 动画，避免元素消失问题
 motion:
-  enable: true
+  enable: false
   async: false
   transition:
     menu_item: fadeInDown

@@ -109,15 +109,18 @@ figure.highlight
   70%
     transform: scale(1)
 
-// 滚动显示动画
-.post-block
-  opacity: 0
-  animation: fadeInUp 0.6s ease forwards
+// 移除可能导致元素消失的动画
+// .post-block
+//   opacity: 0
+//   animation: fadeInUp 0.6s ease forwards
 
 @keyframes fadeInUp
   from
     opacity: 0
     transform: translateY(30px)
+  to
+    opacity: 1
+    transform: translateY(0)
   to
     opacity: 1
     transform: translateY(0)
