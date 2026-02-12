@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getCollection, render } from 'astro:content';
 import { formatDate, slugify } from '@/utils';
 import { SITE } from '@/config';
+import Gitalk from '@/components/Gitalk.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
@@ -39,21 +40,5 @@ const { Content } = await render(post);
   </article>
 
   <!-- Gitalk 评论 -->
-  <div id="gitalk-container" style="margin-top:40px;"></div>
-  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
-  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
-  <script define:vars={{ githubId: SITE.github, repo: SITE.repo, clientId: SITE.gitalkClientId, clientSecret: SITE.gitalkClientSecret, postId: post.id }}>
-    if (document.getElementById('gitalk-container')) {
-      new Gitalk({
-        clientID: clientId,
-        clientSecret: clientSecret,
-        repo: repo,
-        owner: githubId,
-        admin: [githubId],
-        id: postId.substring(0, 50),
-        distractionFreeMode: true,
-        language: 'zh-CN',
-      }).render('gitalk-container');
-    }
-  </script>
+  <Gitalk id={post.id} title={post.data.title} />
 </BaseLayout>

@@ -1,0 +1,112 @@
+---
+import { SITE } from '@/config';
+
+interface Props {
+  id: string;
+  title: string;
+}
+
+const { id, title } = Astro.props;
+---
+
+<div id="gitalk-container" data-id={id.substring(0, 50)} data-title={title}></div>
+
+<script>
+  import Gitalk from 'gitalk';
+  import 'gitalk/dist/gitalk.css';
+
+  const container = document.getElementById('gitalk-container');
+  if (container) {
+    const postId = container.getAttribute('data-id') || 'default';
+    const gitalk = new Gitalk({
+      clientID: 'Ov23limpZdnrSZ6vj8Mq',
+      clientSecret: 'f723dbd49fbf0cbb81446ceee90ad6a263d2566a',
+      repo: 'Kevencaz.github.io',
+      owner: 'Kevencaz',
+      admin: ['Kevencaz'],
+      id: postId,
+      distractionFreeMode: false,
+      language: 'zh-CN',
+    });
+    gitalk.render('gitalk-container');
+  }
+</script>
+
+<style is:global>
+  #gitalk-container {
+    margin-top: 60px;
+    padding: 20px;
+    background: rgba(10, 14, 23, 0.6);
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    border-radius: 8px;
+  }
+
+  /* 赛博朋克风格的 Gitalk */
+  .gt-container {
+    color: #e0e0e0 !important;
+  }
+
+  .gt-container .gt-header-textarea {
+    background: rgba(10, 14, 23, 0.8) !important;
+    border: 1px solid rgba(0, 240, 255, 0.3) !important;
+    color: #e0e0e0 !important;
+  }
+
+  .gt-container .gt-header-textarea:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.3) !important;
+  }
+
+  .gt-container .gt-btn {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark)) !important;
+    border: none !important;
+    color: #fff !important;
+    transition: all 0.3s ease !important;
+  }
+
+  .gt-container .gt-btn:hover {
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.5) !important;
+    transform: translateY(-2px);
+  }
+
+  .gt-container .gt-btn-preview {
+    background: rgba(180, 74, 255, 0.2) !important;
+    border: 1px solid rgba(180, 74, 255, 0.5) !important;
+    color: var(--secondary) !important;
+  }
+
+  .gt-container .gt-comment-content {
+    background: rgba(10, 14, 23, 0.6) !important;
+    border: 1px solid rgba(0, 240, 255, 0.1) !important;
+    color: #e0e0e0 !important;
+  }
+
+  .gt-container .gt-comment-content:hover {
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2) !important;
+  }
+
+  .gt-container a {
+    color: var(--primary) !important;
+  }
+
+  .gt-container a:hover {
+    color: var(--secondary) !important;
+  }
+
+  .gt-container .gt-comment-username {
+    color: var(--primary) !important;
+    font-weight: 600 !important;
+  }
+
+  .gt-container .gt-comment-date {
+    color: #888 !important;
+  }
+
+  .gt-container .gt-svg svg {
+    fill: var(--primary) !important;
+  }
+
+  .gt-container .gt-comment-admin .gt-comment-content {
+    border-left: 3px solid var(--primary) !important;
+  }
+</style>

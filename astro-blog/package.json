@@ -9,6 +9,7 @@
     "generate-posts": "node tools/generate-posts.mjs"
   },
   "dependencies": {
-    "astro": "^5.7.10"
+    "astro": "^5.7.10",
+    "gitalk": "^1.8.0"
   }
 }
