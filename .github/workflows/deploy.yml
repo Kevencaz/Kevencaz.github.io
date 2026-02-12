@@ -35,6 +35,9 @@ jobs:
         working-directory: hexo-src
         run: npx hexo generate
 
+      - name: Disable Jekyll
+        run: touch hexo-src/public/.nojekyll
+
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         with:
