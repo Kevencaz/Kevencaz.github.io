@@ -238,25 +238,45 @@ const angles = [
 const audiences = ['独立开发者', '2-5 人小团队', '有专职运维支持的团队', '多环境交付团队', '正在扩张的团队'];
 const scenarios = ['从 0 到 1 的新项目', '已有系统的重构期', '线上问题频发的阶段', '业务增长带来的容量压力', '需要多端联动的复杂需求'];
 const rhythms = ['每周一发布', '双周迭代 + 灰度 24 小时', '紧急修复热更新', '季度里程碑发布', '小步快跑 + 日常回滚演练'];
+const depthStages = [
+  {
+    name: '入门',
+    focus: '建立基本概念与最小闭环',
+    progression: ['梳理核心术语', '画出最小流程', '先手工跑通一条路径'],
+    practice: ['先解决“能用”再优化', '小范围试点避免过度复杂', '记录关键假设与结论'],
+    boundary: ['避免一次性全量替换', '别在入门阶段追求极致优化'],
+    outcome: '能够独立完成最小落地'
+  },
+  {
+    name: '进阶',
+    focus: '稳定可复用，开始处理边界',
+    progression: ['补齐指标与监控', '处理异常与回滚', '形成可复用模板'],
+    practice: ['逐步引入自动化检查', '灰度发布并演练回滚', '沉淀复盘文档'],
+    boundary: ['稳定优先于新增能力', '不要在无监控下扩范围'],
+    outcome: '方案可复用且可回滚'
+  },
+  {
+    name: '实战',
+    focus: '面向真实流量与团队协作',
+    progression: ['容量评估与压测', '流程标准化', '持续优化与复盘'],
+    practice: ['建立演练机制', '对齐多角色协作', '形成指标周报'],
+    boundary: ['避免单点依赖', '提前准备峰值与故障剧本'],
+    outcome: '团队协作下稳定交付'
+  },
+  {
+    name: '深挖',
+    focus: '规模化演进与成本优化',
+    progression: ['跨团队协作规范', '多环境治理', '成本与性能平衡'],
+    practice: ['制定演进路线图', '关键能力平台化', '定期做成本复盘'],
+    boundary: ['避免无边界扩张', '关注长期维护成本'],
+    outcome: '具备长期演进能力'
+  }
+];
 const titleSuffixes = [
-  '实践手册',
-  '落地路径',
-  '排障清单',
-  '复盘要点',
-  '项目模板',
-  '协作版',
-  '性能版',
-  '稳定性版',
-  '成本优化',
-  '团队协作',
-  '快速上手',
-  '关键细节',
-  '常见坑',
-  '策略拆解',
-  '设计图谱',
-  '执行路线',
-  '案例复盘',
-  '行动指南'
+  ['快速上手', '入门指南', '实践手册', '关键细节', '核心概念'],
+  ['落地路径', '执行路线', '排障清单', '策略拆解', '复盘要点'],
+  ['案例复盘', '项目模板', '行动指南', '团队协作', '实战清单'],
+  ['性能版', '稳定性版', '成本优化', '设计图谱', '架构思考']
 ];
 const toolkits = [
   ['文档：飞书/Notion 需求记录', '监控：Grafana + Prometheus', '告警：Sentry/自定义报警'],
@@ -267,8 +287,12 @@ const toolkits = [
 ];
 
 for (let i = 0; i < count; i++) {
-  const t = topics[i % topics.length];
   const ratio = count <= 1 ? 0 : i / (count - 1);
+  const depthIndex = Math.min(depthStages.length - 1, Math.floor(ratio * depthStages.length));
+  const depth = depthStages[depthIndex];
+  const topicPoolSize = Math.max(1, Math.ceil(((depthIndex + 1) * topics.length) / depthStages.length));
+  const topicPool = topics.slice(0, topicPoolSize);
+  const t = topicPool[i % topicPool.length];
   const date = new Date(start.getTime() + spanMs * ratio);
 
   const angle = pick(angles, i);
@@ -277,7 +301,8 @@ for (let i = 0; i < count; i++) {
   const rhythm = pick(rhythms, i);
   const toolkit = pick(toolkits, i);
   const titleStem = t.title.split('：')[0] || t.title;
-  const titleSuffix = pick(titleSuffixes, i);
+  const titleSuffixGroup = titleSuffixes[depthIndex] || titleSuffixes[0];
+  const titleSuffix = pick(titleSuffixGroup, i);
 
   const title = `${t.title}｜${titleSuffix}`;
   const slug = slugify(title);
@@ -285,19 +310,19 @@ for (let i = 0; i < count; i++) {
   const filePath = path.join(postsDir, fileName);
 
   const tagLines = t.tags.map((x) => `- ${x}`).join('\n');
-  const imgPath = `/images/illustrations/${t.img}`;
 
   const intro = renderParagraphs(
     `这篇面向${audience}，从${angle.name}视角拆解${titleStem}，目标是${angle.focus}。`,
+    `深度定位：${depth.name}，重点是${depth.focus}。`,
     `我们先统一指标（${angle.metric}），再把动作拆成可验证步骤。`
   );
 
   const baseSections = [
-    `![illustration](${imgPath})`,
-    '',
     `> ${t.lead}`,
     '',
     '<!-- more -->',
+    '',
+    '## 开篇定位',
     '',
     intro,
     ''
@@ -318,6 +343,10 @@ for (let i = 0; i < count; i++) {
         '',
         renderList(t.steps),
         '',
+        '## 深度推进',
+        '',
+        renderList(depth.progression),
+        '',
         '## 关键指标',
         '',
         renderList([
@@ -325,6 +354,10 @@ for (let i = 0; i < count; i++) {
           `目标：${angle.focus}`,
           '验证方式：上线后 7 天回看趋势'
         ]),
+        '',
+        '## 执行提示',
+        '',
+        renderList(depth.practice),
         '',
         '## 示例',
         '',
@@ -334,7 +367,7 @@ for (let i = 0; i < count; i++) {
         '',
         '## 常见误区',
         '',
-        renderList([...t.pitfalls, angle.risk]),
+        renderList([...t.pitfalls, angle.risk, ...depth.boundary]),
         '',
         '## 工具与资料',
         '',
@@ -342,7 +375,7 @@ for (let i = 0; i < count; i++) {
         '',
         '## Checklist',
         '',
-        renderList([...t.checklist, `节奏：${rhythm}`]),
+        renderList([...t.checklist, `深度目标：${depth.outcome}`, `节奏：${rhythm}`]),
         ''
       ];
       break;
@@ -367,6 +400,10 @@ for (let i = 0; i < count; i++) {
         '',
         renderList(t.steps),
         '',
+        '## 深度推进',
+        '',
+        renderList(depth.progression),
+        '',
         '## 小型案例',
         '',
         '下面的片段可作为最小闭环示例：',
@@ -380,7 +417,8 @@ for (let i = 0; i < count; i++) {
         renderList([
           `如果只追求${angle.name}，可能带来新的风险：${angle.risk}`,
           '把复杂度锁在工具或中间层，避免侵入业务核心',
-          '优先保证可回滚，再谈极致优化'
+          '优先保证可回滚，再谈极致优化',
+          ...depth.boundary
         ]),
         '',
         '## 落地节奏',
@@ -390,6 +428,10 @@ for (let i = 0; i < count; i++) {
           '先小范围灰度，再扩大覆盖',
           '每一步都要有可观察数据'
         ]),
+        '',
+        '## 执行提示',
+        '',
+        renderList([...depth.practice, `深度目标：${depth.outcome}`]),
         '',
         '## 工具清单',
         '',
@@ -418,6 +460,10 @@ for (let i = 0; i < count; i++) {
         '',
         renderList(t.steps),
         '',
+        '## 深度推进',
+        '',
+        renderList(depth.progression),
+        '',
         '## 关键细节',
         '',
         renderParagraphs(
@@ -427,19 +473,20 @@ for (let i = 0; i < count; i++) {
         '',
         '## 常见误区',
         '',
-        renderList(t.pitfalls),
+        renderList([...t.pitfalls, ...depth.boundary]),
         '',
         '## 下一步建议',
         '',
         renderList([
           `把${rhythm}固定为节奏约束，形成习惯`,
           `补齐工具链：${toolkit[0]} + ${toolkit[1]}`,
-          '为关键环节写一份可复用的检查清单'
+          '为关键环节写一份可复用的检查清单',
+          ...depth.practice
         ]),
         '',
         '## Checklist',
         '',
-        renderList(t.checklist),
+        renderList([...t.checklist, `深度目标：${depth.outcome}`, `节奏：${rhythm}`]),
         ''
       ];
       break;
