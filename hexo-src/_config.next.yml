@@ -1,15 +1,75 @@
 scheme: Gemini
 
+# ========== 菜单 ==========
 menu:
   home: / || fa fa-home
   archives: /archives/ || fa fa-archive
   tags: /tags/ || fa fa-tags
+  categories: /categories/ || fa fa-th
+  小游戏: /games/ || fa fa-gamepad
 
+# ========== 搜索 ==========
 local_search:
   enable: true
+  trigger: auto
+  top_n_per_article: 3
 
-# Basic profile
+# ========== 头像 ==========
 avatar:
   url: /images/header.jpg
+  rounded: true
+  rotated: true
 
-# Disable external analytics by default
+# ========== 动画效果 ==========
+motion:
+  enable: true
+  async: false
+  transition:
+    menu_item: fadeInDown
+    post_block: fadeIn
+    post_header: fadeInDown
+    post_body: fadeIn
+    coll_header: fadeInLeft
+    sidebar: fadeInUp
+
+# ========== 页脚 ==========
+footer:
+  since: 2019
+  icon:
+    name: fa fa-heart
+    animated: true
+    color: "#ff6b81"
+
+# ========== 代码块 ==========
+codeblock:
+  copy_button:
+    enable: true
+    style: mac
+
+# ========== 阅读进度 ==========
+reading_progress:
+  enable: true
+  position: top
+  color: "#37c6c0"
+  height: 3px
+
+# ========== 回到顶部 ==========
+back2top:
+  enable: true
+  sidebar: true
+  scrollpercent: true
+
+# ========== 书签 ==========
+bookmark:
+  enable: true
+  color: "#37c6c0"
+  save: auto
+
+# ========== GitHub 角标 ==========
+github_banner:
+  enable: false
+
+# ========== 自定义文件注入 ==========
+custom_file_path:
+  style: source/_data/styles.styl
+  bodyEnd: source/_data/body-end.njk

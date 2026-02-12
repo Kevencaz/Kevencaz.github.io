@@ -1,0 +1,55 @@
+<script>
+// ========== 鼠标点击烟花特效 ==========
+(function(){
+  function createFirework(x, y) {
+    var colors = ['#667eea','#764ba2','#f093fb','#f5576c','#37c6c0','#ffd93d'];
+    for (var i = 0; i < 12; i++) {
+      var dot = document.createElement('div');
+      dot.style.cssText = 'position:fixed;pointer-events:none;width:6px;height:6px;border-radius:50%;z-index:99999;left:'+x+'px;top:'+y+'px;background:'+colors[Math.floor(Math.random()*colors.length)];
+      document.body.appendChild(dot);
+      var angle = (Math.PI * 2 / 12) * i;
+      var velocity = 60 + Math.random() * 60;
+      var dx = Math.cos(angle) * velocity;
+      var dy = Math.sin(angle) * velocity;
+      (function(el, dx, dy){
+        var start = null;
+        function anim(ts){
+          if(!start) start = ts;
+          var p = (ts - start) / 600;
+          if(p >= 1){ el.remove(); return; }
+          el.style.left = (x + dx * p) + 'px';
+          el.style.top = (y + dy * p + 40 * p * p) + 'px';
+          el.style.opacity = 1 - p;
+          el.style.transform = 'scale(' + (1 - p * 0.5) + ')';
+          requestAnimationFrame(anim);
+        }
+        requestAnimationFrame(anim);
+      })(dot, dx, dy);
+    }
+  }
+  document.addEventListener('click', function(e){ createFirework(e.clientX, e.clientY); });
+})();
+
+// ========== 动态打字副标题 ==========
+(function(){
+  var el = document.querySelector('.site-subtitle');
+  if (!el) return;
+  var texts = ['Welcome to my blog 🚀', '记录学习，分享成长 ✨', 'Code · Think · Create 💡'];
+  var ti = 0, ci = 0, deleting = false;
+  function tick() {
+    var current = texts[ti];
+    if (!deleting) {
+      el.textContent = current.substring(0, ci + 1);
+      ci++;
+      if (ci >= current.length) { deleting = true; setTimeout(tick, 1800); return; }
+      setTimeout(tick, 80);
+    } else {
+      el.textContent = current.substring(0, ci - 1);
+      ci--;
+      if (ci <= 0) { deleting = false; ti = (ti + 1) % texts.length; setTimeout(tick, 400); return; }
+      setTimeout(tick, 40);
+    }
+  }
+  tick();
+})();
+</script>

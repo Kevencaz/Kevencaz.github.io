@@ -1,6 +1,6 @@
 ---
 title: MySQL 索引与查询优化：从 EXPLAIN 到慢查询治理｜成本优化
-date: 2025-11-16 14:42:27
+date: 2025-11-16 15:02:37
 tags:
 - MySQL
 - 数据库
@@ -10,69 +10,61 @@ tags:
 
 <!-- more -->
 
-## 开篇定位
+## 为什么要关注这个话题
 
-这篇面向有专职运维支持的团队，从稳定性视角拆解MySQL 索引与查询优化，目标是降低故障率并缩短恢复时间。
+这篇文章面向有专职运维支持的团队，从成本视角深入拆解MySQL 索引与查询优化。当前定位为「深挖」阶段，核心目标是规模化演进与成本优化。我们会从实际场景出发，结合具体代码示例，把关键知识点拆解为可落地的行动步骤。衡量标准：QPS/成本比。
 
-深度定位：深挖，重点是规模化演进与成本优化。
+MySQL 的 InnoDB 引擎使用 B+ 树作为索引结构。没有索引时，查询需要全表扫描（Full Table Scan），逐行检查是否满足条件。有了索引，查询可以通过树的层级快速定位到目标数据，时间复杂度从 O(n) 降到 O(log n)。对于百万级数据表，这意味着从扫描 100 万行变成只需要访问 3-4 个树节点。
 
-我们先统一指标（SLA/MTTR/错误率），再把动作拆成可验证步骤。
+## 背景与问题
 
-## 背景
+数据库是大多数应用的性能瓶颈所在。当数据量从几千条增长到几百万条时，一条没有索引的查询可能从毫秒级变成秒级。但索引不是越多越好——每个索引都会占用存储空间，并且在写入时需要额外维护。理解索引的工作原理和 EXPLAIN 的输出，是数据库优化的基本功。
 
-不合理索引会拖慢写入速度，合理索引能让查询效率提升一个量级。关键在于匹配查询场景。
+在「线上问题频发的阶段」这个阶段，成本问题尤为突出。过度优化导致投入失衡是最容易踩的坑，我们需要先建立正确的度量体系，再逐步优化。
 
-在线上问题频发的阶段阶段，最容易忽视的是缺少降级兜底引发雪崩，先对齐度量口径能减少返工。
+## 方法论与实践路径
 
-## 方法拆解
+索引设计的核心原则：
 
-- 确认查询模式，先建联合索引再考虑覆盖索引。
-- 用 EXPLAIN 看执行计划，避免全表扫描。
-- 慢查询集中治理，定期归档。
+1. 联合索引遵循最左前缀原则。索引 (a, b, c) 可以加速 WHERE a=1、WHERE a=1 AND b=2、WHERE a=1 AND b=2 AND c=3 的查询，但不能加速 WHERE b=2 的查询。
+2. 覆盖索引避免回表。如果查询的字段都在索引中，MySQL 可以直接从索引返回数据，不需要再去主键索引查完整行。
+3. 索引列不要参与计算。WHERE YEAR(create_time) = 2024 无法使用 create_time 的索引，应改为 WHERE create_time >= '2024-01-01' AND create_time < '2025-01-01'。
 
-## 深度推进
+EXPLAIN 是分析查询性能的核心工具。重点关注：type 列（ALL 表示全表扫描，ref/range 表示使用了索引），rows 列（预估扫描行数），Extra 列（Using index 表示覆盖索引，Using filesort 表示需要额外排序）。
 
-- 跨团队协作规范
-- 多环境治理
-- 成本与性能平衡
+## 代码示例
 
-## 关键指标
+下面是一个可以直接参考的深挖级别示例：
 
-- 核心指标：SLA/MTTR/错误率
-- 目标：降低故障率并缩短恢复时间
-- 验证方式：上线后 7 天回看趋势
+```sql
+-- 分析查询执行计划
+EXPLAIN SELECT id, name, email
+FROM users
+WHERE tenant_id = 2 AND status = 1
+ORDER BY created_at DESC
+LIMIT 20;
 
-## 执行提示
+-- 创建联合索引（匹配查询模式）
+ALTER TABLE users
+ADD INDEX idx_tenant_status_created (tenant_id, status, created_at DESC);
 
-- 制定演进路线图
-- 关键能力平台化
-- 定期做成本复盘
+-- 优化前：全表扫描 type=ALL, rows=1000000
+-- 优化后：索引范围扫描 type=range, rows=50
 
-## 示例
+-- 查看慢查询统计
+SELECT query, exec_count, avg_latency
+FROM sys.statements_with_runtimes_in_95th_percentile
+ORDER BY avg_latency DESC LIMIT 10;
+```
 
-~~~sql
-EXPLAIN SELECT id, name FROM users WHERE tenant_id = 2 AND status = 1 ORDER BY created_at DESC LIMIT 20;
-~~~
+## 落地建议
 
-## 常见误区
+建议建立慢查询治理流程：开启 slow_query_log，设置 long_query_time = 1（1秒以上记为慢查询）。每周 review 慢查询日志，为每条慢查询指定 owner 负责优化。优化后用 EXPLAIN 验证执行计划，确认索引生效。对于复杂查询，可以用 EXPLAIN ANALYZE（MySQL 8.0+）查看实际执行时间。
 
-- 索引列发生隐式类型转换
-- 只建单列索引但查询走多列
-- 慢查询没有闭环
-- 缺少降级兜底引发雪崩
-- 避免无边界扩张
-- 关注长期维护成本
+## 常见误区与避坑指南
 
-## 工具与资料
+常见错误：为每个 WHERE 条件单独建索引（应该建联合索引）；索引列发生隐式类型转换（比如 VARCHAR 列用数字查询）；SELECT * 导致无法使用覆盖索引；ORDER BY 和 WHERE 使用不同的索引导致 filesort；以及在低基数列（如性别、状态）上建索引，效果很差。
 
-- 压测：k6/Locust
-- 日志：ELK/ClickHouse
-- 链路：OpenTelemetry
+## 小结
 
-## Checklist
-
-- 慢查询都有 owner
-- 复合索引与 where 顺序匹配
-- 写入与查询开销可观测
-- 深度目标：具备长期演进能力
-- 节奏：紧急修复热更新
+MySQL 索引与查询优化的深挖阶段，核心是规模化演进与成本优化。从成本角度出发，关注QPS/成本比，避免过度优化导致投入失衡。把上面的实践清单逐项落地，你会发现效果比想象中来得快。
